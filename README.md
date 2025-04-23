@@ -5,10 +5,10 @@ A bakeoff between `Async` and `concurrent-ruby` for making parallel HTTP request
 ## Features
 
 - Make multiple HTTP requests in parallel
-- Limit concurrent connections (5 max)
+- Limit concurrent connections
 - Two implementations:
-  - `async`: Uses the `async` gem with fibers and barriers for resource cleanup
-  - `concurrent`: Uses `concurrent-ruby` with threads and futures
+  - `async`: Uses the `async` gem with fibers
+  - `concurrent`: Uses `concurrent-ruby` with threads
 - Simple, consistent interface across implementations
 
 ## Usage
@@ -18,19 +18,23 @@ IMPLEMENTATION=async bin/test
 IMPLEMENTATION=concurrent bin/test
 ```
 
-## Implementation Details
+We're testing an interface that looks like this:
 
-### Async Implementation
-- Uses Ruby fibers via the `async` gem
-- Limits to 5 concurrent connections using `Async::Semaphore`
-- Uses `Async::Barrier` for proper resource cleanup
-- Lightweight and efficient for I/O-bound operations
+```ruby
+module Parallel
+  # For each thing you want to do in parallel, you subclass Parallel::Base
+  # and define the task as fetch(args), where args is just a Hash.
+  class HTTP < Base
+    def fetch(args) = Net::HTTP.get(URI(args[:url]))
+  end
+end
 
-### Concurrent Implementation
-- Uses Ruby threads via `concurrent-ruby`
-- Limits to 5 concurrent connections using `ThreadPoolExecutor`
-- Uses `Future` and `CountDownLatch` for synchronization
-- Better for CPU-bound operations
+service = Parallel::HTTP.new
+service.add_work(url: "https://google.com")
+service.add_work(url: "https://yahoo.com")
+results = service.fetch_all
+# results is an Array with each HTTP.get() response in it
+```
 
 ## License
 
