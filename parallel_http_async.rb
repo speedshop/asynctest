@@ -1,33 +1,19 @@
 require 'async'
-require 'async/http/internet'
+require 'net/http'
+require 'async/semaphore'
 
 module Parallel
   class Base
-
-    def self.semaphore
-      @semaphore ||= Async::Semaphore.new(5)
-    end
-
-    def add_work(args)
-      @work ||= []
-      @work << args
-    end
+    @@semaphore = Async::Semaphore.new(5)
+    def self.semaphore = @@semaphore
+    def add_work(args) = (@work ||= []) << args
 
     def fetch_all
-      Async do
-        @work.map do |args|
-          self.class.semaphore.async do
-            fetch(args)
-          end
-        end.map(&:wait)
-      end.wait
+      Sync { @work.map { |args| self.class.semaphore.async { fetch(args) } }.map(&:wait) }
     end
   end
 
   class HTTP < Base
-    def fetch(args)
-      internet = Async::HTTP::Internet.new
-      internet.get(args[:url]).read
-    end
+    def fetch(args) = Net::HTTP.get(URI(args[:url]))
   end
 end

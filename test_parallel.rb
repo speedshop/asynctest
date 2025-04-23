@@ -1,3 +1,4 @@
+ENV['CONSOLE_LEVEL'] = 'fatal' # turns off async logging exc to stdout
 require 'minitest/autorun'
 require 'async'
 
@@ -8,7 +9,6 @@ elsif ENV['IMPLEMENTATION'] == 'concurrent'
 else
   raise "IMPLEMENTATION must be set to async or concurrent"
 end
-
 class TestParallelHTTP < Minitest::Test
   def setup
     @parallel_service = Parallel::HTTP.new
@@ -50,5 +50,17 @@ class TestParallelHTTP < Minitest::Test
     end_time = Time.now
 
     assert end_time - start_time > 1
+  end
+
+  def test_failure
+    5.times do |i|
+      @parallel_service.add_work(url: "http://localhost:50/fail")
+    end
+
+    # TODO: better interface for this?
+    assert_raises(Errno::ECONNREFUSED) do
+      result = @parallel_service.fetch_all
+      binding.irb
+    end
   end
 end
