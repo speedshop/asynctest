@@ -59,8 +59,7 @@ class TestParallelHTTP < Minitest::Test
 
     # TODO: better interface for this?
     assert_raises(Errno::ECONNREFUSED) do
-      result = @parallel_service.fetch_all
-      binding.irb
+      @parallel_service.fetch_all
     end
   end
 end
