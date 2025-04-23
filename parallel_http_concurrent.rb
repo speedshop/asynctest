@@ -1,10 +1,11 @@
-require 'concurrent'
-require 'net/http'
+require "concurrent"
+require "net/http"
 
 module Parallel
   class Base
     @@executor = Concurrent::ThreadPoolExecutor.new(min_threads: 0, max_threads: 5, max_queue: 0)
     def self.executor = @@executor
+
     def add_work(args) = (@work ||= []) << args
 
     def fetch_all

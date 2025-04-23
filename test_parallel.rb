@@ -1,11 +1,11 @@
-ENV['CONSOLE_LEVEL'] = 'fatal' # turns off async logging exc to stdout
-require 'minitest/autorun'
-require 'async'
+ENV["CONSOLE_LEVEL"] = "fatal" # turns off async logging exc to stdout
+require "minitest/autorun"
+require "async"
 
-if ENV['IMPLEMENTATION'] == 'async'
-  require_relative 'parallel_http_async'
-elsif ENV['IMPLEMENTATION'] == 'concurrent'
-  require_relative 'parallel_http_concurrent'
+if ENV["IMPLEMENTATION"] == "async"
+  require_relative "parallel_http_async"
+elsif ENV["IMPLEMENTATION"] == "concurrent"
+  require_relative "parallel_http_concurrent"
 else
   raise "IMPLEMENTATION must be set to async or concurrent"
 end

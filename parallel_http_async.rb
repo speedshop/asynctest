@@ -1,12 +1,13 @@
-require 'async'
-require 'net/http'
-require 'async/semaphore'
-require 'async/barrier'
+require "async"
+require "net/http"
+require "async/semaphore"
+require "async/barrier"
 
 module Parallel
   class Base
     @@semaphore = Async::Semaphore.new(5)
     def self.semaphore = @@semaphore
+
     def add_work(args) = (@work ||= []) << args
 
     def fetch_all
