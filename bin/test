@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+
+# Set default implementation if not set
+ENV['IMPLEMENTATION'] ||= 'concurrent'
+
+# Start Puma server in the background
+puma_cmd = "puma -b tcp://localhost:8080 -t 100 config.ru"
+puma_pid = nil
+
+begin
+  # Start Puma server
+  puma_pid = spawn(puma_cmd)
+
+  # Wait for server to be ready
+  start_time = Time.now
+  uri = URI('http://localhost:8080/0')
+
+  loop do
+    begin
+      response = Net::HTTP.get_response(uri)
+      raise "Server returned #{response.code} instead of 200" unless response.code == '200'
+      break
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+      if Time.now - start_time > 10
+        raise "Server did not become available within 10 seconds"
+      end
+      sleep 0.1
+    end
+  end
+
+  # Run the tests
+  system("bundle exec ruby test_parallel.rb")
+  exit_status = $?.exitstatus
+
+  # Ensure we exit with the test's exit status
+  exit exit_status
+ensure
+  # Ensure Puma is killed even if tests fail
+  if puma_pid
+    Process.kill('TERM', puma_pid)
+    Process.wait(puma_pid)
+  end
+end
