@@ -14,19 +14,28 @@ class TestParallelHTTP < Minitest::Test
     @parallel_service = Parallel::HTTP.new
   end
 
-  def test_add_work_and_fetch_all
-    # Add 10 URLs to the service
+  def test_is_parallel
+    # The test server takes 0.5 seconds to run, so 10 requests should take 5 seconds if done serially
     10.times do |i|
       @parallel_service.add_work(url: "http://localhost:8080/#{i}")
     end
 
-    # Fetch all results
+    start_time = Time.now
+    @parallel_service.fetch_all
+    end_time = Time.now
+
+    assert end_time - start_time < 1
+  end
+
+  def test_add_work_and_fetch_all
+    10.times do |i|
+      @parallel_service.add_work(url: "http://localhost:8080/#{i}")
+    end
+
     results = @parallel_service.fetch_all
 
-    # Assert that results is an array
     assert_kind_of Array, results
 
-    # Assert that we got 10 results back
-    assert_equal 10, results.length
+    assert_equal ["/0", "/1", "/2", "/3", "/4", "/5", "/6", "/7", "/8", "/9"], results
   end
 end
