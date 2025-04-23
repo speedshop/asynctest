@@ -13,5 +13,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      - name: Install dependencies
+        run: bundle install
       - name: Run tests
-        run: IMPLEMENTATION=${{ matrix.implementation }} bin/test
+        run: IMPLEMENTATION=${{ matrix.implementation }} bundle exec bin/test

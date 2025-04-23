@@ -1,7 +1,6 @@
 source "https://rubygems.org"
 
 gem "async"
-gem "async-http"
+gem "concurrent-ruby"
 gem "minitest"
 gem "puma"
-gem "concurrent-ruby"
