@@ -1,7 +1,6 @@
 require "async"
 require "net/http"
 require "async/semaphore"
-require "async/barrier"
 
 module Parallel
   class Base
@@ -11,11 +10,8 @@ module Parallel
     def add_work(args) = (@work ||= []) << args
 
     def fetch_all
-      barrier = Async::Barrier.new
       Sync do
-        @work.map { |args| self.class.semaphore.async(parent: barrier) { fetch(args) } }.map(&:wait) # TODO: parent: barrier? does that make sense?
-      ensure
-        barrier.stop
+        @work.map { |args| self.class.semaphore.async { fetch(args) } }.map(&:wait) # TODO: parent: barrier? does that make sense?
       end
     end
   end
