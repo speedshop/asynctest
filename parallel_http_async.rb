@@ -5,7 +5,7 @@ module Parallel
   class Base
 
     def self.semaphore
-      @semaphore ||= Async::Semaphore.new(10)
+      @semaphore ||= Async::Semaphore.new(5)
     end
 
     def add_work(args)
